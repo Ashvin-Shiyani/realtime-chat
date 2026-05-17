@@ -478,6 +478,25 @@
 
   socket.on('connect', () => { mySocketId = socket.id; });
 
+  socket.on('history', (messages) => {
+  const box = document.getElementById('messages');
+  messages.forEach(data => {
+    const colors = getColor(data.username);
+    const isMine = data.username === myUsername;
+    const div = document.createElement('div');
+    div.className = `msg ${isMine ? 'mine' : 'theirs'}`;
+    div.innerHTML = `
+      <div class="msg-meta">
+        <span class="msg-username" style="color:${colors[0]}">${isMine ? 'You' : data.username}</span>
+        <span>${data.time}</span>
+      </div>
+      <div class="msg-bubble">${escapeHTML(data.text)}</div>
+    `;
+    box.appendChild(div);
+  });
+  box.scrollTop = box.scrollHeight;
+});
+
   // MESSAGES
   socket.on('message', (data) => {
     const isMine = data.socketId === mySocketId;
