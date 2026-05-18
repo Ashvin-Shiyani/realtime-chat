@@ -407,7 +407,7 @@
     <div class="login-logo">LiveChat</div>
     <div class="login-sub">// real-time messaging</div>
     <input id="username-input" type="text" placeholder="Enter your username..." maxlength="20" />
-    <button id="join-btn">Join the Chat →</button>
+    <p id="login-error" style="color:#ff6a6a; font-size:0.8rem; margin-top:10px; font-family:'DM Mono',monospace;"></p>
   </div>
 </div>
 
@@ -465,37 +465,28 @@
     if (e.key === 'Enter') joinChat();
   });
 
-  function joinChat() {
+function joinChat() {
     const input = document.getElementById('username-input');
     const name = input.value.trim();
-    if (!name) { input.focus(); return; }
+    const error = document.getElementById('login-error');
+
+    if (!name) {
+      error.textContent = 'Username cannot be empty!';
+      return;
+    }
+    if (name.length < 3) {
+      error.textContent = 'Username must be at least 3 characters!';
+      return;
+    }
+    if (!/^[a-zA-Z0-9_]+$/.test(name)) {
+      error.textContent = 'Only letters, numbers and underscores allowed!';
+      return;
+    }
+
+    error.textContent = '';
     myUsername = name;
     socket.emit('join', name);
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app').classList.add('visible');
-    document.getElementById('msg-input').focus();
   }
-
-  socket.on('connect', () => { mySocketId = socket.id; });
-
-  socket.on('history', (messages) => {
-  const box = document.getElementById('messages');
-  messages.forEach(data => {
-    const colors = getColor(data.username);
-    const isMine = data.username === myUsername;
-    const div = document.createElement('div');
-    div.className = `msg ${isMine ? 'mine' : 'theirs'}`;
-    div.innerHTML = `
-      <div class="msg-meta">
-        <span class="msg-username" style="color:${colors[0]}">${isMine ? 'You' : data.username}</span>
-        <span>${data.time}</span>
-      </div>
-      <div class="msg-bubble">${escapeHTML(data.text)}</div>
-    `;
-    box.appendChild(div);
-  });
-  box.scrollTop = box.scrollHeight;
-});
 
   // MESSAGES
   socket.on('message', (data) => {
