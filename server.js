@@ -24,8 +24,14 @@ app.use(express.static(path.join(__dirname, "public")));
 const users = {};
 
 io.on("connection", (socket) => {
-  socket.on("join", (username) => {
+socket.on("join", (username) => {
+    const taken = Object.values(users).includes(username);
+    if (taken) {
+      socket.emit("joinError", "Username already taken!");
+      return;
+    }
     users[socket.id] = username;
+    socket.emit('joinSuccess');
 
     const history = db.prepare(`
       SELECT username, text, time 

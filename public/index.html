@@ -488,6 +488,15 @@ function joinChat() {
     socket.emit('join', name);
   }
 
+socket.on('joinError', (message) => {
+    document.getElementById('login-error').textContent = message;
+});
+socket.on('joinSuccess', () => {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').classList.add('visible');
+    document.getElementById('msg-input').focus();
+});
+
   // MESSAGES
   socket.on('message', (data) => {
     const isMine = data.socketId === mySocketId;
